@@ -43,12 +43,12 @@ def translate_and_convert(text):
 
     # Format the result
     result = (
-        f"**English**\n{english}\n\n"
-        f"**Spanish**\n{spanish}\n\n"
-        f"**Japanese**\n{japanese}\nRomaji: {japanese_romaji}\n\n"
-        f"**Mandarin Chinese**\n{mandarin}\nPinyin: {mandarin_pinyin}\n"
-        f"Pronunciation: {mandarin_pinyin} (phonetic)\n\n"
-        f"**Greek**\n{greek}\nTransliteration: {greek_translit}\n"
+        f"**English**\n`{english}`\n\n"
+        f"**Spanish**\n`{spanish}`\n\n"
+        f"**Japanese**\n`{japanese}`\nRomaji: `{japanese_romaji}`\n\n"
+        f"**Mandarin Chinese**\n`{mandarin}`\nPinyin: `{mandarin_pinyin}`\n"
+        f"Pronunciation: `{mandarin_pinyin}`\n\n"
+        f"**Greek**\n`{greek}`\nTransliteration: `{greek_translit}`\n"
     )
 
     return result
