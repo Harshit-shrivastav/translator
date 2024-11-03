@@ -6,8 +6,33 @@ from transliterate import translit
 import re, os
 from dotenv import load_dotenv
 import time
+from pypinyin import pinyin, Style
+from g2p_en import G2p
 
 load_dotenv()
+
+def mandarin_english_pronunciation(text):
+    pinyin_words = pinyin(text, style=Style.TONE3, heteronym=False)
+    pinyin_english = " ".join([item[0] for item in pinyin_words])
+
+    # Simplified replacements for better English approximation
+    replacements = {
+        "zh": "j", "x": "sh", "q": "ch", "c": "ts", "j": "j", "sh": "sh",
+        "ch": "ch", "z": "dz", "ü": "yu", "ang": "ahng", "eng": "uhng",
+        "ong": "awng", "ai": "eye", "ao": "ow", "ei": "ay", "ou": "oh",
+        "ian": "yen", "in": "een", "un": "wun", "uang": "wong"
+    }
+    for key, value in replacements.items():
+        pinyin_english = pinyin_english.replace(key, value)
+
+    return pinyin_english.capitalize()
+
+def greek_english_pronunciation(text):
+    transliteration = translit(text, 'el', reversed=True)
+    g2p = G2p()  # Initialize G2p for English phonetic transcription
+    phonetic = " ".join(g2p(transliteration))
+    return phonetic.capitalize()
+
 
 # Define a function for Japanese Romaji conversion using cutlet
 def japanese_to_romaji(text, style="hepburn", use_foreign_spelling=False):
