@@ -3,7 +3,10 @@ from googletranslate import Translator
 import cutlet
 from pinyin import get
 from transliterate import translit
-import re
+import re, os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Define a function for Japanese Romaji conversion using cutlet
 def japanese_to_romaji(text, style="hepburn", use_foreign_spelling=False):
@@ -62,7 +65,7 @@ def handle(msg):
         bot.sendMessage(chat_id, response, parse_mode='Markdown')
 
 # Set up the bot with your API token
-TOKEN = 'YOUR_TELEGRAM_BOT_TOKEN'
+TOKEN = os.environ.get('TOKEN')
 bot = telepot.Bot(TOKEN)
 bot.message_loop(handle)
 
