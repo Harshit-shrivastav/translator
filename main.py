@@ -76,11 +76,11 @@ def handle(msg):
         # Check for /start command and send a welcome message
         if text == "/start":
             welcome_message = (
-                "Welcome! I\\'m here to help translate your text into multiple languages "
+                "Welcome! I'm here to help translate your text into multiple languages "
                 "and provide phonetic and transliterated forms for Japanese, Mandarin, and Greek. "
-                "Just send me any text, and I\\'ll do the rest!"
+                "Just send me any text, and I'll do the rest!"
             )
-            bot.sendMessage(chat_id, welcome_message, parse_mode='MarkdownV2')
+            bot.sendMessage(chat_id, escape_markdown_v2(welcome_message), parse_mode='MarkdownV2')
             return
         
         # Ignore other commands
@@ -89,7 +89,7 @@ def handle(msg):
         
         # Process and translate text
         response = translate_and_convert(text)
-        bot.sendMessage(chat_id, response, parse_mode='MarkdownV2')
+        bot.sendMessage(chat_id, escape_markdown_v2(response), parse_mode='MarkdownV2')
 
 # Set up the bot with your API token
 TOKEN = os.environ.get('TOKEN')
