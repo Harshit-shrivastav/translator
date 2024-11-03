@@ -62,7 +62,7 @@ def translate_and_convert(text):
 
         # Pinyin conversion for Mandarin Chinese
         mandarin_pinyin = get(mandarin, delimiter=" ", format="strip")
-
+        
         # Remove spaces between numbers in Pinyin output if there are no spaces in input
         if not re.search(r'\d\s\d', text):
             mandarin_pinyin = re.sub(r'(?<=\d) (?=\d)', '', mandarin_pinyin)
@@ -70,12 +70,18 @@ def translate_and_convert(text):
         # Greek transliteration
         greek_translit = translit(greek, 'el', reversed=True)
 
+        # English-equivalent pronunciation for Mandarin
+        mandarin_pronunciation = mandarin_english_pronunciation(mandarin)
+
+        # English-equivalent pronunciation for Greek
+        greek_pronunciation = greek_english_pronunciation(greek)
+        
         # Format the result
         result = (
             f"**English**\n`{english}`\n\n"
             f"**Spanish**\n`{spanish}`\n\n"
             f"**Japanese**\n`{japanese}`\nRomaji: `{japanese_romaji}`\n\n"
-            f"**Mandarin Chinese**\n`{mandarin}`\nPinyin: `{mandarin_pinyin}`\n"
+            f"**Mandarin Chinese**\n`{mandarin}`\nPinyin: `{mandarin_pinyin}`\n "
             f"Pronunciation: `{mandarin_pinyin}`\n\n"
             f"**Greek**\n`{greek}`\nTransliteration: `{greek_translit}`\n"
         )
