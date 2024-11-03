@@ -76,9 +76,9 @@ def handle(msg):
         # Check for /start command and send a welcome message
         if text == "/start":
             welcome_message = (
-                "Welcome! I'm here to help translate your text into multiple languages "
+                "Welcome! I\\'m here to help translate your text into multiple languages "
                 "and provide phonetic and transliterated forms for Japanese, Mandarin, and Greek. "
-                "Just send me any text, and I'll do the rest!"
+                "Just send me any text, and I\\'ll do the rest!"
             )
             bot.sendMessage(chat_id, welcome_message, parse_mode='MarkdownV2')
             return
