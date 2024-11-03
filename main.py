@@ -1,12 +1,11 @@
 import telepot
 from googletranslate import Translator
 import cutlet
-from pypinyin import pinyin, Style
-from g2p_en import G2p
+from pinyin import get
 from transliterate import translit
-import re, os
+import re
+import os
 from dotenv import load_dotenv
-import time
 
 load_dotenv()
 
@@ -16,29 +15,18 @@ def japanese_to_romaji(text, style="hepburn", use_foreign_spelling=False):
     katsu.use_foreign_spelling = use_foreign_spelling
     return katsu.romaji(text)
 
-# Define a function to provide English-style pronunciation for Mandarin using pypinyin
+# Function to escape MarkdownV2 special characters
+def escape_markdown_v2(text):
+    return re.sub(r'([_*\[\]()~`>#+\-=|{}.!])', r'\\\1', text)
+
+# Placeholder functions for Mandarin and Greek pronunciation
 def mandarin_english_pronunciation(text):
-    pinyin_words = pinyin(text, style=Style.TONE3, heteronym=False)
-    pinyin_english = " ".join([item[0] for item in pinyin_words])
+    # Implement the logic for English equivalent pronunciation of Mandarin
+    return "pronunciation"  # Replace with actual logic
 
-    # Simplified replacements for better English approximation
-    replacements = {
-        "zh": "j", "x": "sh", "q": "ch", "c": "ts", "j": "j", "sh": "sh",
-        "ch": "ch", "z": "dz", "ü": "yu", "ang": "ahng", "eng": "uhng",
-        "ong": "awng", "ai": "eye", "ao": "ow", "ei": "ay", "ou": "oh",
-        "ian": "yen", "in": "een", "un": "wun", "uang": "wong"
-    }
-    for key, value in replacements.items():
-        pinyin_english = pinyin_english.replace(key, value)
-
-    return pinyin_english.capitalize()
-
-# Define a function to provide English-style pronunciation for Greek using g2p_en
 def greek_english_pronunciation(text):
-    transliteration = translit(text, 'el', reversed=True)
-    g2p = G2p()  # Initialize G2p for English phonetic transcription
-    phonetic = " ".join(g2p(transliteration))
-    return phonetic.capitalize()
+    # Implement the logic for English equivalent pronunciation of Greek
+    return "pronunciation"  # Replace with actual logic
 
 # Define a function to perform the translation and conversion
 def translate_and_convert(text):
@@ -51,28 +39,28 @@ def translate_and_convert(text):
         to_greek = Translator('el')
 
         # Perform translations
-        english = str(to_english(text))
-        spanish = str(to_spanish(text))
-        japanese = str(to_japanese(text))
-        mandarin = str(to_mandarin(text))
-        greek = str(to_greek(text))
+        english = escape_markdown_v2(str(to_english(text)))
+        spanish = escape_markdown_v2(str(to_spanish(text)))
+        japanese = escape_markdown_v2(str(to_japanese(text)))
+        mandarin = escape_markdown_v2(str(to_mandarin(text)))
+        greek = escape_markdown_v2(str(to_greek(text)))
 
         # Romaji conversion for Japanese
-        japanese_romaji = japanese_to_romaji(japanese, style="hepburn", use_foreign_spelling=False)
+        japanese_romaji = escape_markdown_v2(japanese_to_romaji(japanese, style="hepburn", use_foreign_spelling=False))
 
         # English-equivalent pronunciation for Mandarin
-        mandarin_pronunciation = mandarin_english_pronunciation(mandarin)
+        mandarin_pronunciation = escape_markdown_v2(mandarin_english_pronunciation(mandarin))
 
         # English-equivalent pronunciation for Greek
-        greek_pronunciation = greek_english_pronunciation(greek)
+        greek_pronunciation = escape_markdown_v2(greek_english_pronunciation(greek))
 
         # Format the result
         result = (
-            f"**English**\n`{english}`\n\n"
-            f"**Spanish**\n`{spanish}`\n\n"
-            f"**Japanese**\n`{japanese}`\nRomaji: `{japanese_romaji}`\n\n"
-            f"**Mandarin Chinese**\n`{mandarin}`\nPronunciation: `{mandarin_pronunciation}`\n\n"
-            f"**Greek**\n`{greek}`\nPronunciation: `{greek_pronunciation}`\n"
+            f"*English*\n`{english}`\n\n"
+            f"*Spanish*\n`{spanish}`\n\n"
+            f"*Japanese*\n`{japanese}`\nRomaji: `{japanese_romaji}`\n\n"
+            f"*Mandarin Chinese*\n`{mandarin}`\nPronunciation: `{mandarin_pronunciation}`\n\n"
+            f"*Greek*\n`{greek}`\nPronunciation: `{greek_pronunciation}`\n"
         )
 
         return result
@@ -92,29 +80,23 @@ def handle(msg):
                 "and provide phonetic and transliterated forms for Japanese, Mandarin, and Greek. "
                 "Just send me any text, and I'll do the rest!"
             )
-            bot.sendMessage(chat_id, welcome_message)
-            print("Sent welcome message to user.")  # Debugging line
+            bot.sendMessage(chat_id, welcome_message, parse_mode='MarkdownV2')
             return
         
         # Ignore other commands
         if text.startswith("/"):
-            print(f"Ignored command: {text}")  # Debugging line
             return
         
         # Process and translate text
         response = translate_and_convert(text)
-        bot.sendMessage(chat_id, response, parse_mode='Markdown')
+        bot.sendMessage(chat_id, response, parse_mode='MarkdownV2')
 
 # Set up the bot with your API token
 TOKEN = os.environ.get('TOKEN')
-if not TOKEN:
-    print("Error: BOT TOKEN not found. Please check your .env file.")
-    exit(1)
-
 bot = telepot.Bot(TOKEN)
 bot.message_loop(handle)
 
-# Keep the program running efficiently
+# Keep the program running
 print("Bot is listening...")
 while True:
     pass
