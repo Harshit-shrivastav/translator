@@ -64,9 +64,22 @@ def handle(msg):
     content_type, chat_type, chat_id = telepot.glance(msg)
     if content_type == 'text':
         text = msg['text']
-        # Ignore commands
+        
+        # Check for /start command and send a welcome message
+        if text == "/start":
+            welcome_message = (
+                "Welcome! I'm here to help translate your text into multiple languages "
+                "and provide phonetic and transliterated forms for Japanese, Mandarin, and Greek. "
+                "Just send me any text, and I'll do the rest!"
+            )
+            bot.sendMessage(chat_id, welcome_message)
+            return
+        
+        # Ignore other commands
         if text.startswith("/"):
             return
+        
+        # Process and translate text
         response = translate_and_convert(text)
         bot.sendMessage(chat_id, response, parse_mode='Markdown')
 
