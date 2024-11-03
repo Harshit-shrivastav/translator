@@ -5,3 +5,5 @@ cutlet
 unidic-lite
 telepot
 requests 
+pypinyin
+g2p-en
