@@ -81,9 +81,9 @@ def translate_and_convert(text):
             f"**English**\n`{english}`\n\n"
             f"**Spanish**\n`{spanish}`\n\n"
             f"**Japanese**\n`{japanese}`\nRomaji: `{japanese_romaji}`\n\n"
-            f"**Mandarin Chinese**\n`{mandarin}`\nPinyin: `{mandarin_pinyin}`\n "
-            f"Pronunciation: `{mandarin_pinyin}`\n\n"
-            f"**Greek**\n`{greek}`\nTransliteration: `{greek_translit}`\n"
+            f"**Mandarin Chinese**\n`{mandarin}`\nPinyin: `{mandarin_pinyin}`\n"
+            f"Pronunciation: `{mandarin_pronunciation}`\n\n"
+            f"**Greek**\n`{greek}`\nTransliteration: `{greek_translit}`\nPronunciation: `{greek_pronunciation}`"
         )
 
         return result
