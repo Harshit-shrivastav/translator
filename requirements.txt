@@ -1,0 +1,6 @@
+git+https://github.com/ultrafunkamsterdam/googletranslate
+pinyin
+transliterate
+cutlet
+unidic-lite
+telepot
