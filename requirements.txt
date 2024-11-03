@@ -4,3 +4,4 @@ transliterate
 cutlet
 unidic-lite
 telepot
+requests 
