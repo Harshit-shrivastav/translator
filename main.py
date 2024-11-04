@@ -19,13 +19,15 @@ def mandarin_english_pronunciation(text):
     pinyin_words = pinyin(text, style=Style.TONE3, heteronym=False)
     pinyin_english = " ".join([item[0] for item in pinyin_words])
 
-    # Simplified replacements for better English approximation
+    # Replacement dictionary to approximate Mandarin sounds with English equivalents
     replacements = {
         "zh": "j", "x": "sh", "q": "ch", "c": "ts", "j": "j", "sh": "sh",
         "ch": "ch", "z": "dz", "ü": "yu", "ang": "ahng", "eng": "uhng",
         "ong": "awng", "ai": "eye", "ao": "ow", "ei": "ay", "ou": "oh",
-        "ian": "yen", "in": "een", "un": "wun", "uang": "wong"
+        "ian": "yen", "in": "een", "un": "wun", "uang": "wong",
+        "hao": "how", "ma": "mah"
     }
+
     for key, value in replacements.items():
         pinyin_english = pinyin_english.replace(key, value)
 
@@ -33,9 +35,17 @@ def mandarin_english_pronunciation(text):
 
 def greek_english_pronunciation(text):
     transliteration = translit(text, 'el', reversed=True)
-    g2p = G2p()  # Initialize G2p for English phonetic transcription
-    phonetic = " ".join(g2p(transliteration))
-    return phonetic.capitalize()
+    
+    # Replacement dictionary for English-friendly pronunciation
+    replacements = {
+        "geia": "yah", "ti": "tee", "kanete": "kah-neh-teh",
+        "kh": "h", "y": "ee", "d": "th", "g": "y"
+    }
+    
+    for key, value in replacements.items():
+        transliteration = transliteration.replace(key, value)
+
+    return transliteration.capitalize()
 
 
 # Define a function for Japanese Romaji conversion using cutlet
