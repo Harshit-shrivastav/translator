@@ -16,7 +16,7 @@ nltk.download('averaged_perceptron_tagger_eng')
 load_dotenv()
 
 def mandarin_english_pronunciation(text):
-    pinyin_words = pinyin(text, style=Style.TONE3, heteronym=False)
+    pinyin_words = pinyin(text, style=Style.NORMAL, heteronym=False)
     pinyin_english = " ".join([item[0] for item in pinyin_words])
 
     # Replacement dictionary to approximate Mandarin sounds with English equivalents
@@ -46,7 +46,6 @@ def greek_english_pronunciation(text):
         transliteration = transliteration.replace(key, value)
 
     return transliteration.capitalize()
-
 
 # Define a function for Japanese Romaji conversion using cutlet
 def japanese_to_romaji(text, style="hepburn", use_foreign_spelling=False):
