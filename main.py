@@ -11,7 +11,7 @@ from g2p_en import G2p
 import nltk
 
 # Download the required NLTK data
-nltk.download('averaged_perceptron_tagger')
+nltk.download('averaged_perceptron_tagger_eng')
 
 load_dotenv()
 
