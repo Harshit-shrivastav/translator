@@ -91,12 +91,12 @@ def translate_and_convert(text):
         
         # Format the result
         result = (
-            f"**English**\n{english}\n\n"
-            f"**Spanish**\n{spanish}\n\n"
-            f"**Japanese**\n{japanese}\nRomaji: {japanese_romaji}\n\n"
-            f"**Mandarin Chinese**\n{mandarin}\nPinyin: {mandarin_pinyin}\n"
-            f"Pronunciation: {mandarin_pronunciation}\n\n"
-            f"**Greek**\n{greek}\nTransliteration: {greek_translit}\nPronunciation: {greek_pronunciation}"
+            f"**English**\n`{english}`\n\n"
+            f"**Spanish**\n`{spanish}`\n\n"
+            f"**Japanese**\n`{japanese}`\nRomaji: `{japanese_romaji}`\n\n"
+            f"**Mandarin Chinese**\n`{mandarin}`\nPinyin: `{mandarin_pinyin}`\n"
+            f"Pronunciation: `{mandarin_pronunciation}`\n\n"
+            f"**Greek**\n`{greek}`\nTransliteration: `{greek_translit}`\nPronunciation: `{greek_pronunciation}`"
         )
 
         return result
@@ -126,7 +126,7 @@ def handle(msg):
         # Process and translate text
         response = translate_and_convert(text)
         try:
-            bot.sendMessage(chat_id, response)
+            bot.sendMessage(chat_id, response, parse_mode='Markdown')
         except Exception as e:
             print(e)
 
