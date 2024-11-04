@@ -113,7 +113,7 @@ def handle(msg):
         # Process and translate text
         response = translate_and_convert(text)
         try:
-            bot.sendMessage(chat_id, response, parse_mode='Markdown')
+            bot.sendMessage(chat_id, response)
         except Exception as e:
             print(e)
 
