@@ -8,6 +8,10 @@ from dotenv import load_dotenv
 import time
 from pypinyin import pinyin, Style
 from g2p_en import G2p
+import nltk
+
+# Download the required NLTK data
+nltk.download('averaged_perceptron_tagger')
 
 load_dotenv()
 
