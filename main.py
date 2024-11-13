@@ -1,11 +1,12 @@
-import telepot
+import os
+import re
+import asyncio
+from dotenv import load_dotenv
+from telethon import TelegramClient, events, Button
 from googletranslate import Translator
 import cutlet
 from pinyin import get
 from transliterate import translit
-import re, os
-from dotenv import load_dotenv
-import time
 from pypinyin import pinyin, Style
 from g2p_en import G2p
 import nltk
@@ -14,11 +15,21 @@ nltk.download('averaged_perceptron_tagger_eng')
 
 load_dotenv()
 
+# Define bot credentials and create the Telegram client
+API_ID = os.environ.get('API_ID')
+API_HASH = os.environ.get('API_HASH')
+BOT_TOKEN = os.environ.get('BOT_TOKEN')
+
+if not API_ID or not API_HASH or not BOT_TOKEN:
+    print("Error: Bot credentials not found. Please check your .env file.")
+    exit(1)
+
+bot = TelegramClient('bot', API_ID, API_HASH).start(bot_token=BOT_TOKEN)
+
+# Helper functions for language pronunciation and transliteration
 def mandarin_english_pronunciation(text):
     pinyin_words = pinyin(text, style=Style.NORMAL, heteronym=False)
     pinyin_english = " ".join([item[0] for item in pinyin_words])
-
-    # Replacement dictionary to approximate Mandarin sounds with English equivalents
     replacements = {
         "zh": "j", "x": "sh", "q": "ch", "c": "ts", "j": "j", "sh": "sh",
         "ch": "ch", "z": "dz", "ü": "yu", "ang": "ahng", "eng": "uhng",
@@ -26,24 +37,18 @@ def mandarin_english_pronunciation(text):
         "ian": "yen", "in": "een", "un": "wun", "uang": "wong",
         "hao": "how", "ma": "mah"
     }
-
     for key, value in replacements.items():
         pinyin_english = pinyin_english.replace(key, value)
-
     return pinyin_english.capitalize()
 
 def greek_english_pronunciation(text):
     transliteration = translit(text, 'el', reversed=True)
-    
-    # Replacement dictionary for English-friendly pronunciation
     replacements = {
         "geia": "yah", "ti": "tee", "kanete": "kah-neh-teh",
         "kh": "h", "y": "ee", "d": "th", "g": "y"
     }
-    
     for key, value in replacements.items():
         transliteration = transliteration.replace(key, value)
-
     return transliteration.capitalize()
 
 def japanese_to_romaji(text, style="hepburn", use_foreign_spelling=False):
@@ -51,76 +56,75 @@ def japanese_to_romaji(text, style="hepburn", use_foreign_spelling=False):
     katsu.use_foreign_spelling = use_foreign_spelling
     return katsu.romaji(text)
 
-def translate_and_convert(text):
+# Translator function
+async def translate_text(text, lang):
+    translator = Translator(lang)
+    return str(translator(text))
+
+# Start command
+@bot.on(events.NewMessage(pattern='/start'))
+async def start(event):
+    await event.reply(
+        "Welcome! Send me any text to translate, and I'll show you the available languages to choose from."
+)
+
+# Translation process
+@bot.on(events.NewMessage)
+async def handle_message(event):
+    if event.message.text == "/start":
+        return
+
+    # Store original text and prompt user to select a language
+    bot.original_text = event.message.text
+    await event.reply(
+        "Select a language to translate into:",
+        buttons=[
+            [Button.inline("English", b"en"), Button.inline("Spanish", b"es")],
+            [Button.inline("Japanese", b"ja"), Button.inline("Mandarin", b"zh")],
+            [Button.inline("Greek", b"el")]
+        ]
+    )
+
+@bot.on(events.CallbackQuery)
+async def handle_translation(event):
+    lang_code = event.data.decode()
+    text = bot.original_text
+    
+    if lang_code not in ["en", "es", "ja", "zh", "el"]:
+        await event.reply("Unknown language selected.")
+        return
+
+    # Translate text based on selected language
     try:
-        to_english = Translator('en')
-        to_spanish = Translator('es')
-        to_japanese = Translator('ja')
-        to_mandarin = Translator('zh')
-        to_greek = Translator('el')
+        translated_text = await translate_text(text, lang_code)
         
-        english = str(to_english(text))
-        spanish = str(to_spanish(text))
-        japanese = str(to_japanese(text))
-        mandarin = str(to_mandarin(text))
-        greek = str(to_greek(text))
-        
-        japanese_romaji = japanese_to_romaji(japanese, style="hepburn", use_foreign_spelling=False)
-        mandarin_pinyin = get(mandarin, delimiter=" ", format="strip")
-        
-        if not re.search(r'\d\s\d', text):
-            mandarin_pinyin = re.sub(r'(?<=\d) (?=\d)', '', mandarin_pinyin)
-
-        greek_translit = translit(greek, 'el', reversed=True)
-
-        mandarin_pronunciation = mandarin_english_pronunciation(mandarin)
-
-        greek_pronunciation = greek_english_pronunciation(greek)
-        
-        result = (
-            f"**English**\n`{english}`\n\n"
-            f"**Spanish**\n`{spanish}`\n\n"
-            f"**Japanese**\n`{japanese}`\n\nRomaji: `{japanese_romaji}`\n\n"
-            f"**Mandarin Chinese**\n\n`{mandarin}`\n\nPinyin: `{mandarin_pinyin}`\n\n"
-            f"Mandarin Pronunciation: `{mandarin_pronunciation}`\n\n"
-            f"**Greek**\n\n`{greek}`\n\nGreek Transliteration: `{greek_translit}`\n\nGreek Pronunciation: `{greek_pronunciation}`"
-        )
-
-        return result
-    except Exception as e:
-        return f"An error occurred: {e}"
-
-def handle(msg):
-    content_type, chat_type, chat_id = telepot.glance(msg)
-    if content_type == 'text':
-        text = msg['text']
-        
-        if text == "/start":
-            welcome_message = (
-                "Welcome! I'm here to help translate your text into multiple languages "
-                "and provide phonetic and transliterated forms for Japanese, Mandarin, and Greek. "
-                "Just send me any text, and I'll do the rest!"
+        # Additional processing for specific languages
+        if lang_code == "ja":
+            romaji = japanese_to_romaji(translated_text)
+            response = f"**Japanese Translation:** `{translated_text}`\n\nRomaji: `{romaji}`"
+        elif lang_code == "zh":
+            mandarin_pinyin = get(translated_text, delimiter=" ", format="strip")
+            mandarin_pronunciation = mandarin_english_pronunciation(translated_text)
+            response = (
+                f"**Mandarin Chinese Translation:** `{translated_text}`\n\n"
+                f"**Pinyin:** `{mandarin_pinyin}`\n\n"
+                f"**Pronunciation:** `{mandarin_pronunciation}`"
             )
-            bot.sendMessage(chat_id, welcome_message)
-            return
-        
-        if text.startswith("/"):
-            return
-        
-        response = translate_and_convert(text)
-        try:
-            bot.sendMessage(chat_id, response, parse_mode='Markdown')
-        except Exception as e:
-            print(e)
-            
-TOKEN = os.environ.get('TOKEN')
-if not TOKEN:
-    print("Error: BOT TOKEN not found. Please check your .env file.")
-    exit(1)
+        elif lang_code == "el":
+            greek_translit = translit(translated_text, 'el', reversed=True)
+            greek_pronunciation = greek_english_pronunciation(translated_text)
+            response = (
+                f"**Greek Translation:** `{translated_text}`\n\n"
+                f"**Transliteration:** `{greek_translit}`\n\n"
+                f"**Pronunciation:** `{greek_pronunciation}`"
+            )
+        else:
+            response = f"**Translation:** `{translated_text}`"
 
-bot = telepot.Bot(TOKEN)
-bot.message_loop(handle)
+        await event.reply(response, parse_mode="Markdown")
+    except Exception as e:
+        await event.reply(f"An error occurred: {e}")
 
+# Run the bot
 print("Bot is listening...")
-while True:
-    pass
+bot.run_until_disconnected()
